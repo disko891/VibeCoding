@@ -66,8 +66,10 @@ CREATE TABLE events (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_events_detected_at (detected_at),
-  KEY idx_events_severity (severity),
-  KEY idx_events_status (status),
+  -- 필터 + 최신순 정렬을 인덱스만으로 처리 (filesort 방지)
+  KEY idx_events_severity_detected (severity, detected_at),
+  KEY idx_events_status_detected (status, detected_at),
+  KEY idx_events_type_detected (attack_type_id, detected_at),
   CONSTRAINT fk_events_attack_type FOREIGN KEY (attack_type_id) REFERENCES attack_types (id),
   CONSTRAINT fk_events_source_ip FOREIGN KEY (source_ip_id) REFERENCES source_ips (id)
 ) ENGINE=InnoDB;
@@ -82,6 +84,8 @@ CREATE TABLE actions (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_actions_created_at (created_at),
+  KEY idx_actions_event_created (event_id, created_at),
+  KEY idx_actions_type_created (action_type, created_at),
   CONSTRAINT fk_actions_event FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
   CONSTRAINT fk_actions_admin FOREIGN KEY (admin_id) REFERENCES admins (id)
 ) ENGINE=InnoDB;

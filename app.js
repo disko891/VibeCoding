@@ -12,6 +12,7 @@ const attackTypesRouter = require('./routes/attackTypes');
 const ipsRouter = require('./routes/ips');
 const actionsRouter = require('./routes/actions');
 const { requireAdmin } = require('./lib/auth');
+const cache = require('./lib/cache');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -61,6 +62,12 @@ app.use((req, res, next) => {
   res.locals.flash = req.session.flash || null;
   delete req.session.flash;
   req.flash = (type, msg) => { req.session.flash = { type, msg }; };
+  next();
+});
+
+// 등록/수정/삭제 같은 요청이 끝나면 조회 캐시를 비워서 바뀐 내용이 바로 보이게 함
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') res.on('finish', cache.clear);
   next();
 });
 

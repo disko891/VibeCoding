@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../db/pool');
 const { isAdmin } = require('../lib/auth');
+const { cached } = require('../lib/cache');
 
 const router = express.Router();
 
@@ -10,24 +11,27 @@ function ymd(d) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-router.get('/', async (req, res) => {
-  if (!isAdmin(req)) return res.redirect('/attack-types');
+const DASHBOARD_TTL = 30 * 1000; // 30초 (그 사이 등록/수정이 있으면 바로 갱신됨)
 
+// 대시보드 통계 쿼리 (요약 + 위험도별 건수는 events를 한 번만 읽도록 합침)
+async function loadDashboard() {
   const [
     [[summary]],
-    [bySeverity],
     [byType],
     [daily],
     [topIps],
     [recent],
   ] = await Promise.all([
     pool.query(
-      `SELECT SUM(detected_at >= CURDATE()) AS today,
+      `SELECT COUNT(*) AS total,
+              SUM(detected_at >= CURDATE()) AS today,
               SUM(status = 'OPEN') AS open_count,
-              COUNT(*) AS total
+              SUM(severity = 'LOW') AS low,
+              SUM(severity = 'MEDIUM') AS medium,
+              SUM(severity = 'HIGH') AS high,
+              SUM(severity = 'CRITICAL') AS critical
          FROM events`
     ),
-    pool.query('SELECT severity, COUNT(*) AS cnt FROM events GROUP BY severity'),
     pool.query(
       `SELECT t.name, COUNT(e.id) AS cnt
          FROM attack_types t
@@ -58,9 +62,21 @@ router.get('/', async (req, res) => {
         LIMIT 10`
     ),
   ]);
+  return { summary, byType, daily, topIps, recent };
+}
 
-  const severityCount = { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 };
-  bySeverity.forEach((r) => { severityCount[r.severity] = r.cnt; });
+router.get('/', async (req, res) => {
+  if (!isAdmin(req)) return res.redirect('/attack-types');
+
+  const { summary, byType, daily, topIps, recent } = await cached('dashboard', DASHBOARD_TTL, loadDashboard);
+
+  // SUM() 결과는 문자열로 오므로 숫자로 변환 (이벤트가 0건이면 NULL)
+  const severityCount = {
+    LOW: Number(summary.low) || 0,
+    MEDIUM: Number(summary.medium) || 0,
+    HIGH: Number(summary.high) || 0,
+    CRITICAL: Number(summary.critical) || 0,
+  };
 
   // 최근 7일, 이벤트 없는 날은 0으로 채움
   const dailyMap = Object.fromEntries(daily.map((r) => [r.day, r.cnt]));

@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../db/pool');
 const { createIfAllResolved } = require('../lib/autoEvent');
+const { cached } = require('../lib/cache');
 
 const router = express.Router();
 
@@ -13,10 +14,19 @@ const PAGE_SIZE = 15;
 // id가 숫자가 아니면 404로
 router.param('id', (req, res, next, id) => (/^\d+$/.test(id) ? next() : next('route')));
 
-// 셀렉트박스용 목록
+// 셀렉트박스용 목록 (잘 안 바뀌므로 캐시, 등록/수정 시 자동으로 비워짐)
+const OPTIONS_TTL = 5 * 60 * 1000;
+const getAttackTypeOptions = () => cached('opt:attackTypes', OPTIONS_TTL, async () => {
+  const [rows] = await pool.query('SELECT id, name FROM attack_types ORDER BY name');
+  return rows;
+});
+const getIpOptions = () => cached('opt:ips', OPTIONS_TTL, async () => {
+  const [rows] = await pool.query('SELECT id, ip_address, country_name FROM source_ips ORDER BY ip_address');
+  return rows;
+});
+
 async function loadOptions() {
-  const [attackTypes] = await pool.query('SELECT id, name FROM attack_types ORDER BY name');
-  const [ips] = await pool.query('SELECT id, ip_address, country_name FROM source_ips ORDER BY ip_address');
+  const [attackTypes, ips] = await Promise.all([getAttackTypeOptions(), getIpOptions()]);
   return { attackTypes, ips };
 }
 
@@ -68,7 +78,10 @@ router.get('/', async (req, res) => {
   if (filter.attack_type_id) { where.push('e.attack_type_id = ?'); params.push(filter.attack_type_id); }
   const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
 
-  const [[{ total }]] = await pool.query(`SELECT COUNT(*) AS total FROM events e ${whereSql}`, params);
+  const [[[{ total }]], attackTypes] = await Promise.all([
+    pool.query(`SELECT COUNT(*) AS total FROM events e ${whereSql}`, params),
+    getAttackTypeOptions(),
+  ]);
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const page = Math.min(Math.max(parseInt(req.query.page, 10) || 1, 1), totalPages);
 
@@ -83,8 +96,6 @@ router.get('/', async (req, res) => {
       LIMIT ? OFFSET ?`,
     [...params, PAGE_SIZE, (page - 1) * PAGE_SIZE]
   );
-
-  const [attackTypes] = await pool.query('SELECT id, name FROM attack_types ORDER BY name');
 
   // 페이지 링크에 필터 유지
   const qs = new URLSearchParams();
