@@ -1,0 +1,43 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<h3 class="page-title mb-3"><%= title %></h3>
+
+<% if (errors.length) { %>
+  <div class="alert alert-danger">
+    <ul class="mb-0 ps-3"><% errors.forEach(msg => { %><li><%= msg %></li><% }) %></ul>
+  </div>
+<% } %>
+
+<form class="card form-narrow" method="post" action="<%= isEdit ? `/ips/${item.id}/edit` : '/ips' %>">
+  <div class="card-body row g-3">
+    <div class="col-md-6">
+      <label class="form-label">IP 주소</label>
+      <input name="ip_address" class="form-control mono" maxlength="45" value="<%= item.ip_address || '' %>" placeholder="203.0.113.10" required>
+    </div>
+    <div class="col-4 col-md-2">
+      <label class="form-label">국가 코드</label>
+      <input name="country_code" class="form-control mono text-uppercase" maxlength="2" value="<%= item.country_code || '' %>" placeholder="KR">
+    </div>
+    <div class="col-8 col-md-4">
+      <label class="form-label">국가명</label>
+      <input name="country_name" class="form-control" maxlength="50" value="<%= item.country_name || '' %>">
+    </div>
+    <div class="col-12">
+      <label class="form-label">메모</label>
+      <input name="memo" class="form-control" maxlength="255" value="<%= item.memo || '' %>">
+    </div>
+    <div class="col-12">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="is_blocked" name="is_blocked" value="1" <%= item.is_blocked ? 'checked' : '' %>>
+        <label class="form-check-label" for="is_blocked">차단</label>
+      </div>
+    </div>
+  </div>
+  <div class="card-footer d-flex justify-content-end gap-2">
+    <a href="/ips" class="btn btn-outline-secondary">취소</a>
+    <button class="btn btn-accent"><%= isEdit ? '저장' : '등록' %></button>
+  </div>
+</form>
+
+<%- include('../partials/footer') %>

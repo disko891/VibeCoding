@@ -1,0 +1,434 @@
+/* 관제 콘솔 테마 - 무채색 바탕 + 포인트 색 하나, 장식 최소화 */
+:root,
+[data-bs-theme="dark"] {
+  --soc-bg: #0b0e12;
+  --soc-panel: #12161c;
+  --soc-panel-2: #0f1318;
+  --soc-line: #222a33;
+  --soc-line-strong: #2e3843;
+  --soc-text: #c8d0da;
+  --soc-text-dim: #7a8696;
+  --soc-accent: #4d9de0;
+  --soc-ok: #3fa66b;
+
+  /* 위험도 색 */
+  --sev-low: #5a8fc9;
+  --sev-medium: #c4a13a;
+  --sev-high: #d0782f;
+  --sev-critical: #d04444;
+
+  --bs-body-bg: var(--soc-bg);
+  --bs-body-color: var(--soc-text);
+  --bs-body-font-family: system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  --bs-body-font-size: 0.925rem;
+  --bs-secondary-color: var(--soc-text-dim);
+  --bs-border-color: var(--soc-line);
+  --bs-border-radius: 3px;
+  --bs-border-radius-sm: 2px;
+  --bs-border-radius-lg: 4px;
+  --bs-link-color: #7ab4e8;
+  --bs-link-color-rgb: 122, 180, 232;
+  --bs-link-hover-color: #a9cff2;
+  --bs-link-hover-color-rgb: 169, 207, 242;
+  --bs-tertiary-bg: var(--soc-panel-2);
+}
+
+body {
+  background: var(--soc-bg);
+}
+
+.mono {
+  font-family: "Cascadia Mono", "JetBrains Mono", Consolas, "D2Coding", monospace;
+  font-size: 0.9em;
+}
+
+.text-muted {
+  color: var(--soc-text-dim) !important;
+}
+
+/* 상단 메뉴 */
+.soc-nav {
+  background: var(--soc-panel-2);
+  border-bottom: 1px solid var(--soc-line);
+  padding-top: 0;
+  padding-bottom: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+.soc-nav .navbar-brand {
+  padding: 0.7rem 0;
+}
+
+.soc-nav .nav-link {
+  color: var(--soc-text-dim);
+  font-size: 0.875rem;
+  padding: 0.95rem 0.85rem !important;
+  border-bottom: 2px solid transparent;
+}
+
+.soc-nav .nav-link:hover {
+  color: var(--soc-text);
+}
+
+.soc-nav .nav-link.active {
+  color: #e6edf3;
+  border-bottom-color: var(--soc-accent);
+}
+
+.brand-mark {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #e6edf3 !important;
+  font-size: 1.05rem;
+}
+
+.brand-tag {
+  margin-left: 0.45rem;
+  padding: 0 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  vertical-align: 2px;
+  color: var(--soc-text-dim);
+  border: 1px solid var(--soc-line-strong);
+  border-radius: 2px;
+}
+
+/* 수집 중 표시등 */
+.live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  vertical-align: 2px;
+  border-radius: 50%;
+  background: var(--soc-ok);
+  animation: blink 1.6s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to { visibility: hidden; }
+}
+
+.soc-footer {
+  color: var(--soc-text-dim);
+  border-top: 1px solid var(--soc-line);
+  font-size: 0.78rem;
+}
+
+.page-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #e6edf3;
+}
+
+/* 패널(카드) */
+.card {
+  background: var(--soc-panel);
+  border: 1px solid var(--soc-line);
+  border-radius: 3px;
+}
+
+.card-header,
+.card-footer {
+  background: var(--soc-panel-2);
+  border-color: var(--soc-line);
+}
+
+.card-header {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #9aa5b3;
+}
+
+/* 요약 수치 */
+.stat-card {
+  color: inherit;
+}
+
+.stat-open {
+  border-left: 2px solid var(--sev-critical);
+}
+
+a.stat-card:hover {
+  border-color: var(--soc-line-strong);
+  border-left-color: var(--sev-critical);
+}
+
+.stat-label {
+  color: var(--soc-text-dim);
+  font-size: 0.8rem;
+}
+
+.stat-value {
+  font-family: "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #e6edf3;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-open .stat-value {
+  color: #e06a6a;
+}
+
+.stat-sub {
+  color: var(--soc-text-dim);
+  font-size: 0.78rem;
+}
+
+.chart-box {
+  height: 280px;
+}
+
+.rank {
+  display: inline-block;
+  width: 1.8rem;
+  color: var(--soc-text-dim);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 0.85em;
+}
+
+/* 배지: 테두리형, 치명만 채움 */
+.badge {
+  font-family: "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25em 0.5em;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.sev-low { color: var(--sev-low); border-color: var(--sev-low); }
+.sev-medium { color: var(--sev-medium); border-color: var(--sev-medium); }
+.sev-high { color: var(--sev-high); border-color: var(--sev-high); }
+.sev-critical { color: #fff; background: var(--sev-critical); border-color: var(--sev-critical); }
+
+/* 상태: 앞에 작은 점 */
+.st-open,
+.st-investigating,
+.st-resolved {
+  font-family: var(--bs-body-font-family);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding-left: 0;
+  color: var(--soc-text);
+}
+
+.st-open::before,
+.st-investigating::before,
+.st-resolved::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  vertical-align: 1px;
+  border-radius: 50%;
+}
+
+.st-open::before { background: var(--sev-critical); }
+.st-investigating::before { background: var(--sev-medium); }
+.st-resolved::before { background: var(--soc-ok); }
+.st-resolved { color: var(--soc-text-dim); }
+
+.act-investigate { color: var(--sev-low); border-color: var(--sev-low); }
+.act-block_ip { color: #fff; background: var(--sev-critical); border-color: var(--sev-critical); }
+.act-escalate { color: var(--sev-high); border-color: var(--sev-high); }
+.act-resolve { color: var(--soc-ok); border-color: var(--soc-ok); }
+.act-note { color: var(--soc-text-dim); border-color: var(--soc-line-strong); }
+
+/* 대시보드 위험도 칸 */
+.sev-box {
+  border-radius: 3px;
+  padding: 0.55rem 0.25rem;
+  border: 1px solid var(--soc-line);
+  border-top-width: 2px;
+  background: var(--soc-panel-2);
+}
+
+.sev-box:hover {
+  background: #161b22;
+}
+
+.sev-count {
+  font-family: "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #e6edf3;
+  font-variant-numeric: tabular-nums;
+}
+
+.sev-name {
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+.sev-low-box { border-top-color: var(--sev-low); color: var(--sev-low); }
+.sev-medium-box { border-top-color: var(--sev-medium); color: var(--sev-medium); }
+.sev-high-box { border-top-color: var(--sev-high); color: var(--sev-high); }
+.sev-critical-box { border-top-color: var(--sev-critical); color: var(--sev-critical); }
+
+/* 테이블 */
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.025);
+  --bs-table-border-color: var(--soc-line);
+  margin-bottom: 0;
+}
+
+.table thead th {
+  color: var(--soc-text-dim);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--soc-panel-2);
+  border-bottom-color: var(--soc-line-strong);
+  white-space: nowrap;
+}
+
+.row-link {
+  cursor: pointer;
+}
+
+.table a,
+.card-header a {
+  text-decoration: none;
+}
+
+.table a:hover,
+.card-header a:hover {
+  text-decoration: underline;
+}
+
+.row-blocked td {
+  background: rgba(208, 68, 68, 0.05);
+}
+
+.list-group-item {
+  background: transparent;
+  border-color: var(--soc-line);
+}
+
+/* 폼 / 버튼 */
+.form-control,
+.form-select {
+  background-color: var(--soc-bg);
+  border-color: var(--soc-line-strong);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--soc-bg);
+  border-color: var(--soc-accent);
+  box-shadow: none;
+}
+
+.form-narrow {
+  max-width: 760px;
+}
+
+.btn {
+  border-radius: 3px;
+}
+
+.btn-accent {
+  background: var(--soc-accent);
+  border-color: var(--soc-accent);
+  color: #0b0e12;
+  font-weight: 600;
+}
+
+.btn-accent:hover,
+.btn-accent:focus {
+  background: #6aaee6;
+  border-color: #6aaee6;
+  color: #0b0e12;
+}
+
+.btn-toggle-blocked {
+  background: var(--sev-critical);
+  border: 1px solid var(--sev-critical);
+  color: #fff;
+  min-width: 84px;
+}
+
+.btn-toggle-blocked:hover {
+  background: #b83a3a;
+  border-color: #b83a3a;
+  color: #fff;
+}
+
+.btn-toggle-allowed {
+  background: transparent;
+  border: 1px solid var(--soc-line-strong);
+  color: var(--soc-text-dim);
+  min-width: 84px;
+}
+
+.btn-toggle-allowed:hover {
+  border-color: var(--soc-ok);
+  color: var(--soc-ok);
+}
+
+.pagination {
+  --bs-pagination-bg: var(--soc-panel);
+  --bs-pagination-border-color: var(--soc-line);
+  --bs-pagination-color: var(--soc-text);
+  --bs-pagination-hover-bg: #161b22;
+  --bs-pagination-active-bg: var(--soc-accent);
+  --bs-pagination-active-border-color: var(--soc-accent);
+  --bs-pagination-active-color: #0b0e12;
+  --bs-pagination-disabled-bg: var(--soc-panel-2);
+  --bs-pagination-focus-box-shadow: none;
+}
+
+.detail-list dt {
+  color: var(--soc-text-dim);
+  font-weight: 500;
+}
+
+.detail-list dd {
+  margin-bottom: 0.7rem;
+}
+
+/* 로그인 / 회원가입 */
+.login-card {
+  max-width: 380px;
+  border-color: var(--soc-line-strong);
+}
+
+.role-admin,
+.role-viewer {
+  font-family: var(--bs-body-font-family);
+  font-weight: 500;
+}
+
+.role-admin { color: var(--soc-accent); border-color: var(--soc-accent); }
+.role-viewer { color: var(--soc-text-dim); border-color: var(--soc-line-strong); }
+
+.role-option {
+  cursor: pointer;
+  border: 1px solid var(--soc-line-strong);
+  border-radius: 3px;
+  padding: 0.6rem 0.75rem;
+  height: 100%;
+}
+
+.btn-check:checked + .role-option {
+  border-color: var(--soc-accent);
+  background: rgba(77, 157, 224, 0.06);
+}
+
+.signup-card {
+  max-width: 440px;
+}
+
+.login-locked {
+  border-color: var(--sev-critical);
+  border-top-width: 3px;
+}

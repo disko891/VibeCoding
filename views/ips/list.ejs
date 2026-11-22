@@ -1,0 +1,61 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="page-title mb-0">출발지 IP
+    <small class="text-muted fs-6">차단 <%= ips.filter(i => i.is_blocked).length %> / 전체 <%= ips.length %></small>
+  </h3>
+  <a href="/ips/new" class="btn btn-accent btn-sm">+ IP 등록</a>
+</div>
+
+<%- include('../partials/flash') %>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>IP 주소</th>
+          <th>국가</th>
+          <th class="text-end">공격 횟수</th>
+          <th>마지막 탐지</th>
+          <th>메모</th>
+          <th>상태</th>
+          <th class="text-end">관리</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!ips.length) { %>
+          <tr><td colspan="7" class="text-center text-muted py-4">등록된 IP가 없습니다.</td></tr>
+        <% } %>
+        <% ips.forEach(ip => { %>
+          <tr class="<%= ip.is_blocked ? 'row-blocked' : '' %>">
+            <td class="mono fw-semibold"><%= ip.ip_address %></td>
+            <td class="small"><%= ip.country_code ? ip.country_code + ' ' : '' %><span class="text-muted"><%= ip.country_name || '-' %></span></td>
+            <td class="text-end mono"><%= ip.attack_count %></td>
+            <td class="mono small text-muted"><%= ip.last_seen || '-' %></td>
+            <td class="small text-muted"><%= ip.memo || '' %></td>
+            <td>
+              <form method="post" action="/ips/<%= ip.id %>/toggle" class="d-inline">
+                <% if (ip.is_blocked) { %>
+                  <button class="btn btn-sm btn-toggle-blocked" title="클릭하면 차단 해제">● 차단됨</button>
+                <% } else { %>
+                  <button class="btn btn-sm btn-toggle-allowed" title="클릭하면 차단">○ 허용</button>
+                <% } %>
+              </form>
+            </td>
+            <td class="text-end text-nowrap">
+              <a href="/ips/<%= ip.id %>/edit" class="btn btn-sm btn-outline-info">수정</a>
+              <form method="post" action="/ips/<%= ip.id %>/delete" class="d-inline"
+                    data-confirm="<%= ip.ip_address %>을(를) 삭제할까요?">
+                <button class="btn btn-sm btn-outline-danger">삭제</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

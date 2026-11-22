@@ -1,0 +1,42 @@
+<%
+  // admin: 관리자만 보이는 메뉴
+  const menus = [
+    { url: '/', name: '대시보드', admin: true },
+    { url: '/events', name: '이벤트', admin: true },
+    { url: '/attack-types', name: '공격 유형' },
+    { url: '/actions', name: '조치 내역' },
+    { url: '/ips', name: 'IP 관리', admin: true },
+  ].filter(m => isAdmin || !m.admin);
+  function active(url) {
+    if (url === '/') return currentPath === '/' ? 'active' : '';
+    return currentPath.startsWith(url) ? 'active' : '';
+  }
+%>
+<nav class="navbar navbar-expand-lg soc-nav">
+  <div class="container">
+    <a class="navbar-brand brand-mark" href="<%= isAdmin ? '/' : '/attack-types' %>"><span class="live-dot" title="수집 중"></span>SecDash<span class="brand-tag mono">SOC</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="메뉴">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto">
+        <% menus.forEach(m => { %>
+          <li class="nav-item"><a class="nav-link <%= active(m.url) %>" href="<%= m.url %>"><%= m.name %></a></li>
+        <% }) %>
+      </ul>
+      <% if (currentAdmin) { %>
+        <div class="d-flex align-items-center gap-3">
+          <span class="small text-body-secondary">
+            <span class="text-body fw-semibold"><%= currentAdmin.name %></span>
+            <span class="mono">(<%= currentAdmin.username %>)</span>
+            <span class="badge <%= isAdmin ? 'role-admin' : 'role-viewer' %> ms-1"><%= isAdmin ? '관리자' : '조회' %></span>
+          </span>
+          <form action="/logout" method="post" class="m-0">
+            <button class="btn btn-sm btn-outline-secondary">로그아웃</button>
+          </form>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</nav>
+<main class="container py-4 flex-grow-1">

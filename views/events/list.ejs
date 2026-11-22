@@ -1,0 +1,99 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="page-title mb-0">보안 이벤트 <small class="text-muted fs-6"><%= total %>건</small></h3>
+  <a href="/events/new" class="btn btn-accent btn-sm">+ 이벤트 등록</a>
+</div>
+
+<%- include('../partials/flash') %>
+
+<form class="card mb-3" method="get" action="/events">
+  <div class="card-body row g-2 align-items-end">
+    <div class="col-6 col-md-3">
+      <label class="form-label small text-muted">위험도</label>
+      <select name="severity" class="form-select form-select-sm">
+        <option value="">전체</option>
+        <% SEVERITIES.forEach(s => { %>
+          <option value="<%= s %>" <%= filter.severity === s ? 'selected' : '' %>><%= s %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="col-6 col-md-3">
+      <label class="form-label small text-muted">상태</label>
+      <select name="status" class="form-select form-select-sm">
+        <option value="">전체</option>
+        <% STATUSES.forEach(s => { %>
+          <option value="<%= s %>" <%= filter.status === s ? 'selected' : '' %>><%= STATUS_LABEL[s] %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label small text-muted">공격 유형</label>
+      <select name="attack_type_id" class="form-select form-select-sm">
+        <option value="">전체</option>
+        <% attackTypes.forEach(t => { %>
+          <option value="<%= t.id %>" <%= filter.attack_type_id === t.id ? 'selected' : '' %>><%= t.name %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="col-12 col-md-3 d-flex gap-2">
+      <button class="btn btn-sm btn-accent flex-grow-1">검색</button>
+      <a href="/events" class="btn btn-sm btn-outline-secondary">초기화</a>
+    </div>
+  </div>
+</form>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>탐지 시각</th>
+          <th>위험도</th>
+          <th>공격 유형</th>
+          <th>출발지 IP</th>
+          <th>대상</th>
+          <th>상태</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!events.length) { %>
+          <tr><td colspan="7" class="text-center text-muted py-4">조건에 맞는 이벤트가 없습니다.</td></tr>
+        <% } %>
+        <% events.forEach(e => { %>
+          <tr class="row-link" data-href="/events/<%= e.id %>">
+            <td class="text-muted"><%= e.id %></td>
+            <td class="mono small"><%= e.detected_at %></td>
+            <td><%- include('../partials/badges', { sev: e.severity, st: null }) %></td>
+            <td><a href="/events/<%= e.id %>"><%= e.attack_type %></a></td>
+            <td class="mono"><%= e.ip_address %></td>
+            <td class="mono small"><%= e.target_host %><%= e.target_port ? ':' + e.target_port : '' %></td>
+            <td><%- include('../partials/badges', { sev: null, st: e.status }) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<% if (totalPages > 1) { %>
+  <nav class="mt-3">
+    <ul class="pagination pagination-sm justify-content-center">
+      <li class="page-item <%= page === 1 ? 'disabled' : '' %>">
+        <a class="page-link" href="<%= pageUrl(page - 1) %>">이전</a>
+      </li>
+      <% for (let p = 1; p <= totalPages; p++) { %>
+        <li class="page-item <%= p === page ? 'active' : '' %>">
+          <a class="page-link" href="<%= pageUrl(p) %>"><%= p %></a>
+        </li>
+      <% } %>
+      <li class="page-item <%= page === totalPages ? 'disabled' : '' %>">
+        <a class="page-link" href="<%= pageUrl(page + 1) %>">다음</a>
+      </li>
+    </ul>
+  </nav>
+<% } %>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,10 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+
+<div class="text-center py-5">
+  <h1 class="display-4 text-muted"><%= status %></h1>
+  <p><%= message %></p>
+  <a href="<%= isAdmin || !currentAdmin ? '/' : '/attack-types' %>" class="btn btn-accent">메인으로</a>
+</div>
+
+<%- include('partials/footer') %>

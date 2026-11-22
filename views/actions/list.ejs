@@ -1,0 +1,69 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h3 class="page-title mb-0">조치 내역 <small class="text-muted fs-6"><%= total %>건</small></h3>
+  <form method="get" action="/actions" class="d-flex gap-2">
+    <select name="action_type" class="form-select form-select-sm">
+      <option value="">전체 조치</option>
+      <% ACTION_TYPES.forEach(a => { %>
+        <option value="<%= a %>" <%= type === a ? 'selected' : '' %>><%= ACTION_LABEL[a] %></option>
+      <% }) %>
+    </select>
+    <button class="btn btn-sm btn-accent text-nowrap">보기</button>
+  </form>
+</div>
+
+<%- include('../partials/flash') %>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>조치 시각</th>
+          <th>조치</th>
+          <th>내용</th>
+          <th>이벤트</th>
+          <th>담당자</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!actions.length) { %>
+          <tr><td colspan="5" class="text-center text-muted py-4">조치 내역이 없습니다.</td></tr>
+        <% } %>
+        <% actions.forEach(a => { %>
+          <tr>
+            <td class="mono small text-nowrap"><%= a.created_at %></td>
+            <td><span class="badge act-<%= a.action_type.toLowerCase() %>"><%= ACTION_LABEL[a.action_type] %></span></td>
+            <td class="small"><%= a.description || '-' %></td>
+            <td class="small text-nowrap">
+              <% if (isAdmin) { %>
+                <a href="/events/<%= a.event_id %>">#<%= a.event_id %></a>
+              <% } else { %>
+                <span class="text-muted">#<%= a.event_id %></span>
+              <% } %>
+              <%= a.attack_type %>
+              <%- include('../partials/badges', { sev: a.severity, st: null }) %>
+            </td>
+            <td class="small text-nowrap"><%= a.admin_name %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<% if (totalPages > 1) { %>
+  <nav class="mt-3">
+    <ul class="pagination pagination-sm justify-content-center flex-wrap">
+      <li class="page-item <%= page === 1 ? 'disabled' : '' %>"><a class="page-link" href="<%= pageUrl(page - 1) %>">이전</a></li>
+      <% for (let p = 1; p <= totalPages; p++) { %>
+        <li class="page-item <%= p === page ? 'active' : '' %>"><a class="page-link" href="<%= pageUrl(p) %>"><%= p %></a></li>
+      <% } %>
+      <li class="page-item <%= page === totalPages ? 'disabled' : '' %>"><a class="page-link" href="<%= pageUrl(page + 1) %>">다음</a></li>
+    </ul>
+  </nav>
+<% } %>
+
+<%- include('../partials/footer') %>

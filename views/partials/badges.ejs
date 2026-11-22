@@ -1,0 +1,3 @@
+<%# 사용: include('partials/badges', { sev }) 또는 { st } %>
+<% if (typeof sev !== 'undefined' && sev) { %><span class="badge <%= SEVERITY_BADGE[sev] %>"><%= sev %></span><% } %>
+<% if (typeof st !== 'undefined' && st) { %><span class="badge <%= STATUS_BADGE[st] %>"><%= STATUS_LABEL[st] %></span><% } %>

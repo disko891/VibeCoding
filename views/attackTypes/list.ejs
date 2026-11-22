@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="page-title mb-0">공격 유형</h3>
+  <% if (isAdmin) { %><a href="/attack-types/new" class="btn btn-accent btn-sm">+ 유형 등록</a><% } %>
+</div>
+
+<%- include('../partials/flash') %>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>코드</th>
+          <th>유형명</th>
+          <th>설명</th>
+          <th>기본 위험도</th>
+          <th class="text-end">이벤트</th>
+          <% if (isAdmin) { %><th class="text-end">관리</th><% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!types.length) { %>
+          <tr><td colspan="<%= isAdmin ? 6 : 5 %>" class="text-center text-muted py-4">등록된 공격 유형이 없습니다.</td></tr>
+        <% } %>
+        <% types.forEach(t => { %>
+          <tr>
+            <td class="mono"><%= t.code %></td>
+            <td class="fw-semibold"><%= t.name %></td>
+            <td class="small text-muted"><%= t.description || '-' %></td>
+            <td><%- include('../partials/badges', { sev: t.default_severity, st: null }) %></td>
+            <td class="text-end">
+              <% if (isAdmin) { %>
+                <a href="/events?attack_type_id=<%= t.id %>" class="mono"><%= t.event_count %></a>
+              <% } else { %>
+                <span class="mono"><%= t.event_count %></span>
+              <% } %>
+            </td>
+            <% if (isAdmin) { %>
+            <td class="text-end text-nowrap">
+              <a href="/attack-types/<%= t.id %>/edit" class="btn btn-sm btn-outline-info">수정</a>
+              <form method="post" action="/attack-types/<%= t.id %>/delete" class="d-inline"
+                    data-confirm="'<%= t.name %>' 유형을 삭제할까요?">
+                <button class="btn btn-sm btn-outline-danger">삭제</button>
+              </form>
+            </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

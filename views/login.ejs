@@ -1,0 +1,52 @@
+<%- include('partials/header') %>
+
+<main class="d-flex align-items-center justify-content-center flex-grow-1 px-3">
+  <div class="card login-card w-100 <%= locked ? 'login-locked' : '' %>">
+    <div class="card-body p-4">
+      <div class="text-center mb-4">
+        <div class="brand-mark mb-2">SecDash</div>
+        <div class="text-muted small">보안관제 대시보드 관리자 로그인</div>
+      </div>
+
+      <% if (locked) { %>
+        <div class="alert alert-danger small">
+          <div class="fw-bold mb-1">로그인이 차단되었습니다</div>
+          로그인을 여러 번 실패해서 이 접속 위치가 차단되었습니다.
+          차단을 풀려면 추가 비밀번호를 입력하세요.
+        </div>
+        <% if (error) { %>
+          <div class="alert alert-warning py-2 small"><%= error %></div>
+        <% } %>
+        <form action="/login/unlock" method="post">
+          <div class="mb-4">
+            <label class="form-label small" for="unlock_code">추가 비밀번호</label>
+            <input class="form-control mono" type="password" id="unlock_code" name="unlock_code" inputmode="numeric" autocomplete="off" required autofocus>
+          </div>
+          <button class="btn btn-danger w-100">차단 해제</button>
+        </form>
+      <% } else { %>
+        <% if (info) { %>
+          <div class="alert alert-success py-2 small"><%= info %></div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-danger py-2 small"><%= error %></div>
+        <% } %>
+        <form action="/login" method="post">
+          <div class="mb-3">
+            <label class="form-label small" for="username">아이디</label>
+            <input class="form-control" id="username" name="username" value="<%= username %>" required autofocus>
+          </div>
+          <div class="mb-4">
+            <label class="form-label small" for="password">비밀번호</label>
+            <input class="form-control" type="password" id="password" name="password" required>
+          </div>
+          <button class="btn btn-accent w-100">로그인</button>
+        </form>
+        <div class="text-center mt-3 small">
+          계정이 없나요? <a href="/signup">계정 만들기</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+<%# </main>은 footer에서 닫음 %>
+<%- include('partials/footer') %>

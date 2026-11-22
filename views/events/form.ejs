@@ -1,0 +1,92 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<h3 class="page-title mb-3"><%= title %></h3>
+
+<% if (errors.length) { %>
+  <div class="alert alert-danger">
+    <ul class="mb-0 ps-3">
+      <% errors.forEach(msg => { %><li><%= msg %></li><% }) %>
+    </ul>
+  </div>
+<% } %>
+
+<% if (!attackTypes.length || !ips.length) { %>
+  <div class="alert alert-warning">
+    이벤트를 등록하려면 먼저 <a href="/attack-types/new">공격 유형</a>과 <a href="/ips/new">출발지 IP</a>를 등록해야 합니다.
+  </div>
+<% } %>
+
+<form class="card" method="post" action="<%= isEdit ? `/events/${event.id}/edit` : '/events' %>">
+  <div class="card-body row g-3">
+    <div class="col-md-6">
+      <label class="form-label">공격 유형</label>
+      <select name="attack_type_id" class="form-select" required>
+        <option value="">선택</option>
+        <% attackTypes.forEach(t => { %>
+          <option value="<%= t.id %>" <%= event.attack_type_id === t.id ? 'selected' : '' %>><%= t.name %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">출발지 IP</label>
+      <select name="source_ip_id" class="form-select" required>
+        <option value="">선택</option>
+        <% ips.forEach(ip => { %>
+          <option value="<%= ip.id %>" <%= event.source_ip_id === ip.id ? 'selected' : '' %>>
+            <%= ip.ip_address %><%= ip.country_name ? ` (${ip.country_name})` : '' %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">대상 호스트</label>
+      <input name="target_host" class="form-control" maxlength="100" value="<%= event.target_host || '' %>" placeholder="web-01.corp.local" required>
+    </div>
+    <div class="col-6 col-md-3">
+      <label class="form-label">포트</label>
+      <input name="target_port" type="number" min="1" max="65535" class="form-control" value="<%= event.target_port || '' %>">
+    </div>
+    <div class="col-6 col-md-3">
+      <label class="form-label">프로토콜</label>
+      <select name="protocol" class="form-select">
+        <% PROTOCOLS.forEach(p => { %>
+          <option <%= event.protocol === p ? 'selected' : '' %>><%= p %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">위험도</label>
+      <select name="severity" class="form-select">
+        <% SEVERITIES.forEach(s => { %>
+          <option <%= event.severity === s ? 'selected' : '' %>><%= s %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">상태</label>
+      <select name="status" class="form-select">
+        <% STATUSES.forEach(s => { %>
+          <option value="<%= s %>" <%= event.status === s ? 'selected' : '' %>><%= STATUS_LABEL[s] %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">탐지 시각</label>
+      <input name="detected_at" type="datetime-local" class="form-control" value="<%= toInputDate(event.detected_at) %>" required>
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">탐지 내용</label>
+      <textarea name="description" class="form-control" rows="4"><%= event.description || '' %></textarea>
+    </div>
+  </div>
+  <div class="card-footer d-flex justify-content-end gap-2">
+    <a href="<%= isEdit ? `/events/${event.id}` : '/events' %>" class="btn btn-outline-secondary">취소</a>
+    <button class="btn btn-accent"><%= isEdit ? '저장' : '등록' %></button>
+  </div>
+</form>
+
+<%- include('../partials/footer') %>

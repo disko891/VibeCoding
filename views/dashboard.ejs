@@ -1,0 +1,118 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+
+<div class="d-flex justify-content-between align-items-end mb-3">
+  <h3 class="page-title mb-0">관제 현황</h3>
+  <span class="text-muted small mono" id="clock"></span>
+</div>
+
+<%- include('partials/flash') %>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3">
+    <div class="card stat-card h-100">
+      <div class="card-body">
+        <div class="stat-label">오늘 이벤트</div>
+        <div class="stat-value"><%= summary.today %></div>
+        <div class="stat-sub">전체 <%= summary.total %>건</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <a href="/events?status=OPEN" class="card stat-card stat-open h-100 text-decoration-none">
+      <div class="card-body">
+        <div class="stat-label">미처리 (OPEN)</div>
+        <div class="stat-value"><%= summary.open %></div>
+        <div class="stat-sub">처리 대기 중</div>
+      </div>
+    </a>
+  </div>
+  <div class="col-12 col-lg-6">
+    <div class="card stat-card h-100">
+      <div class="card-body">
+        <div class="stat-label mb-2">위험도별 이벤트</div>
+        <div class="row g-2 text-center">
+          <% Object.entries(severityCount).forEach(([sev, cnt]) => { %>
+            <div class="col-3">
+              <a href="/events?severity=<%= sev %>" class="sev-box <%= SEVERITY_BADGE[sev] %>-box d-block text-decoration-none">
+                <div class="sev-count"><%= cnt %></div>
+                <div class="sev-name"><%= sev %></div>
+              </a>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header">공격 유형별 비율</div>
+      <div class="card-body chart-box"><canvas id="typeChart"></canvas></div>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card h-100">
+      <div class="card-header">최근 7일 이벤트 추이</div>
+      <div class="card-body chart-box"><canvas id="dailyChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header">공격 IP TOP 5</div>
+      <ul class="list-group list-group-flush">
+        <% if (!topIps.length) { %><li class="list-group-item text-muted">데이터 없음</li><% } %>
+        <% topIps.forEach((ip, i) => { %>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>
+              <span class="rank">#<%= i + 1 %></span>
+              <span class="mono"><%= ip.ip_address %></span>
+              <span class="text-muted small"><%= ip.country_name || '' %></span>
+              <% if (ip.is_blocked) { %><span class="badge sev-critical ms-1">차단</span><% } %>
+            </span>
+            <span class="mono fw-bold"><%= ip.cnt %></span>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between">
+        <span>최근 이벤트</span>
+        <a href="/events" class="small">전체 보기 →</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0">
+          <thead>
+            <tr><th>시각</th><th>위험도</th><th>유형</th><th>출발지</th><th>상태</th></tr>
+          </thead>
+          <tbody>
+            <% if (!recent.length) { %>
+              <tr><td colspan="5" class="text-center text-muted py-3">이벤트 없음</td></tr>
+            <% } %>
+            <% recent.forEach(e => { %>
+              <tr class="row-link" data-href="/events/<%= e.id %>">
+                <td class="mono small"><%= e.detected_at.slice(5, 16) %></td>
+                <td><%- include('partials/badges', { sev: e.severity, st: null }) %></td>
+                <td><a href="/events/<%= e.id %>"><%= e.attack_type %></a></td>
+                <td class="mono small"><%= e.ip_address %></td>
+                <td><%- include('partials/badges', { sev: null, st: e.status }) %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="chart-data" type="application/json"><%- chartJson %></script>
+<script src="/js/dashboard.js" defer></script>
+
+<%- include('partials/footer') %>

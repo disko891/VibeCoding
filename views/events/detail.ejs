@@ -1,0 +1,106 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h3 class="page-title mb-0">
+    이벤트 #<%= event.id %>
+    <%- include('../partials/badges', { sev: event.severity, st: event.status }) %>
+  </h3>
+  <div class="d-flex gap-2">
+    <a href="/events" class="btn btn-sm btn-outline-secondary">목록</a>
+    <a href="/events/<%= event.id %>/edit" class="btn btn-sm btn-outline-info">수정</a>
+    <form method="post" action="/events/<%= event.id %>/delete" class="d-inline"
+          data-confirm="이벤트와 조치 내역이 모두 삭제됩니다. 삭제할까요?">
+      <button class="btn btn-sm btn-outline-danger">삭제</button>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/flash') %>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-header">이벤트 정보</div>
+      <div class="card-body">
+        <dl class="row mb-0 detail-list">
+          <dt class="col-4">공격 유형</dt>
+          <dd class="col-8"><%= event.attack_type %> <span class="text-muted small">(<%= event.attack_code %>)</span></dd>
+
+          <dt class="col-4">출발지 IP</dt>
+          <dd class="col-8">
+            <span class="mono"><%= event.ip_address %></span>
+            <% if (event.country_name) { %><span class="text-muted small"> · <%= event.country_name %></span><% } %>
+            <% if (event.is_blocked) { %><span class="badge sev-critical ms-1">차단됨</span><% } %>
+          </dd>
+
+          <dt class="col-4">대상</dt>
+          <dd class="col-8 mono"><%= event.target_host %><%= event.target_port ? ':' + event.target_port : '' %> / <%= event.protocol %></dd>
+
+          <dt class="col-4">탐지 시각</dt>
+          <dd class="col-8 mono"><%= event.detected_at %></dd>
+
+          <dt class="col-4">최종 수정</dt>
+          <dd class="col-8 mono text-muted"><%= event.updated_at %></dd>
+
+          <dt class="col-4">탐지 내용</dt>
+          <dd class="col-8 mb-0" style="white-space: pre-wrap;"><%= event.description || '-' %></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <form class="card h-100" method="post" action="/events/<%= event.id %>/actions">
+      <div class="card-header">조치 등록</div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label small">조치 유형</label>
+          <select name="action_type" class="form-select" required>
+            <% ACTION_TYPES.forEach(a => { %>
+              <option value="<%= a %>"><%= ACTION_LABEL[a] %></option>
+            <% }) %>
+          </select>
+          <div class="form-text">IP 차단을 선택하면 <span class="mono"><%= event.ip_address %></span>이 차단 상태로 바뀝니다.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small">상태 변경</label>
+          <select name="new_status" class="form-select">
+            <option value="">변경 안 함 (현재: <%= STATUS_LABEL[event.status] %>)</option>
+            <% STATUSES.forEach(s => { %>
+              <% if (s !== event.status) { %><option value="<%= s %>"><%= STATUS_LABEL[s] %></option><% } %>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="form-label small">내용</label>
+          <textarea name="description" class="form-control" rows="3" placeholder="조치 내용"></textarea>
+        </div>
+      </div>
+      <div class="card-footer text-end">
+        <button class="btn btn-accent">조치 등록</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">조치 내역 <span class="text-muted small"><%= actions.length %>건</span></div>
+  <% if (!actions.length) { %>
+    <div class="card-body text-muted">등록된 조치가 없습니다.</div>
+  <% } else { %>
+    <ul class="list-group list-group-flush timeline">
+      <% actions.forEach(a => { %>
+        <li class="list-group-item">
+          <div class="d-flex justify-content-between flex-wrap gap-1">
+            <span><span class="badge act-<%= a.action_type.toLowerCase() %>"><%= ACTION_LABEL[a.action_type] %></span>
+              <span class="ms-1"><%= a.description || '' %></span></span>
+            <span class="text-muted small mono"><%= a.created_at %> · <%= a.admin_name %></span>
+          </div>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>
