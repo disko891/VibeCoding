@@ -11,6 +11,7 @@ const eventsRouter = require('./routes/events');
 const attackTypesRouter = require('./routes/attackTypes');
 const ipsRouter = require('./routes/ips');
 const actionsRouter = require('./routes/actions');
+const liveRouter = require('./routes/live');
 const { requireAdmin } = require('./lib/auth');
 const cache = require('./lib/cache');
 const pool = require('./db/pool');
@@ -87,6 +88,7 @@ app.use('/attack-types', attackTypesRouter);  // 목록은 둘 다, 등록/수�
 app.use('/actions', actionsRouter);
 app.use('/events', requireAdmin, eventsRouter);
 app.use('/ips', requireAdmin, ipsRouter);
+app.use('/live', requireAdmin, liveRouter);   // 공격 관제 맵
 
 app.use((req, res) => {
   res.status(404).render('error', { title: '404', status: 404, message: '페이지를 찾을 수 없습니다.' });

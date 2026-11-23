@@ -3,7 +3,10 @@
 
 <div class="d-flex justify-content-between align-items-end mb-3">
   <h3 class="page-title mb-0">관제 현황</h3>
-  <span class="text-muted small mono" id="clock"></span>
+  <div class="d-flex align-items-center gap-3">
+    <span class="text-muted small mono d-none d-sm-inline" id="clock"></span>
+    <a href="/live" class="btn btn-sm btn-accent">공격 관제 맵 ▶</a>
+  </div>
 </div>
 
 <%- include('partials/flash') %>

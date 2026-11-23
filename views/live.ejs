@@ -1,0 +1,79 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+
+<div class="d-flex justify-content-between align-items-end mb-3 flex-wrap gap-2">
+  <div>
+    <h3 class="page-title mb-1">공격 관제 맵</h3>
+    <div class="text-muted small">
+      최근 탐지된 공격을 시간 순서대로 재생합니다. 해결된 공격은 방어선에서 차단되고, 미처리·조사중인 공격은 대상 서버에 도달합니다.
+    </div>
+  </div>
+  <a href="/" class="btn btn-sm btn-outline-secondary">← 대시보드</a>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-9">
+    <div class="card">
+      <div class="card-header d-flex align-items-center gap-2 flex-wrap">
+        <span id="modeBadge" class="badge mode-replay">REPLAY</span>
+        <span class="mono small text-body" id="liveClock">-</span>
+        <div class="ms-auto d-flex gap-2 flex-wrap">
+          <div class="btn-group btn-group-sm" role="group" aria-label="재생 속도">
+            <button type="button" class="btn btn-outline-secondary speed-btn active" data-speed="1">1x</button>
+            <button type="button" class="btn btn-outline-secondary speed-btn" data-speed="2">2x</button>
+            <button type="button" class="btn btn-outline-secondary speed-btn" data-speed="4">4x</button>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="btnPlay">일시정지</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="btnRestart">다시 재생</button>
+        </div>
+      </div>
+      <div class="live-stage" id="liveStage">
+        <canvas id="liveCanvas" role="img" aria-label="국가별 출발지에서 사내 서버로 향하는 공격 흐름. 오른쪽 탐지 로그에 같은 내용이 글로 표시됩니다."></canvas>
+        <div class="live-alert" id="liveAlert" hidden></div>
+        <div class="live-tip" id="liveTip" hidden></div>
+        <div class="live-msg" id="liveMsg">데이터 불러오는 중…</div>
+      </div>
+      <div class="live-progress"><div id="liveProgress"></div></div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 d-flex flex-column gap-3">
+    <div class="card">
+      <div class="card-header">방어 현황</div>
+      <div class="card-body">
+        <div class="stat-label">점수</div>
+        <div class="hud-score" id="hudScore">0</div>
+        <div class="stat-sub mb-3">연속 방어 <span class="mono text-body" id="hudCombo">0</span> · 최고 <span class="mono" id="hudBest">0</span></div>
+        <dl class="hud-list mb-0">
+          <dt>탐지</dt><dd id="hudDetected">0</dd>
+          <dt>차단</dt><dd id="hudBlocked" class="hud-block">0</dd>
+          <dt>피격</dt><dd id="hudHit" class="hud-hit">0</dd>
+          <dt>방어율</dt><dd id="hudRate">-</dd>
+          <dt>현재 미처리</dt><dd id="hudOpen">-</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card flex-grow-1">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>탐지 로그</span>
+        <span class="small fw-normal text-muted" id="pollStatus"></span>
+      </div>
+      <div class="feed" id="feed">
+        <div class="text-muted small p-3" id="feedEmpty">재생이 시작되면 여기에 표시됩니다.</div>
+      </div>
+    </div>
+
+    <div class="small text-muted d-flex flex-wrap gap-2 align-items-center">
+      <span class="badge sev-low">LOW</span>
+      <span class="badge sev-medium">MEDIUM</span>
+      <span class="badge sev-high">HIGH</span>
+      <span class="badge sev-critical">CRITICAL</span>
+      <span>· 점이 클수록 위험</span>
+    </div>
+  </div>
+</div>
+
+<script src="/js/live.js" defer></script>
+
+<%- include('partials/footer') %>

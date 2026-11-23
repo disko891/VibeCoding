@@ -432,3 +432,157 @@ a.stat-card:hover {
   border-color: var(--sev-critical);
   border-top-width: 3px;
 }
+
+/* 공격 관제 맵 */
+.live-stage {
+  position: relative;
+  height: 560px;
+  background: var(--soc-bg);
+  overflow: hidden;
+}
+
+@media (max-width: 991.98px) {
+  .live-stage { height: 460px; }
+}
+
+@media (max-width: 575.98px) {
+  .live-stage { height: 380px; }
+}
+
+.live-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.live-progress {
+  height: 2px;
+  background: var(--soc-line);
+}
+
+.live-progress > div {
+  width: 0;
+  height: 100%;
+  background: var(--soc-accent);
+}
+
+.live-alert {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 24px);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #e6edf3;
+  background: var(--soc-panel-2);
+  border: 1px solid var(--soc-line-strong);
+  border-left: 3px solid var(--sev-critical);
+}
+
+.live-tip {
+  position: absolute;
+  z-index: 2;
+  max-width: 260px;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  pointer-events: none;
+  background: var(--soc-panel-2);
+  border: 1px solid var(--soc-line-strong);
+}
+
+.live-msg {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  color: var(--soc-text-dim);
+  font-size: 0.8rem;
+}
+
+.live-msg:empty {
+  display: none;
+}
+
+.mode-replay { color: var(--soc-text-dim); border-color: var(--soc-line-strong); }
+.mode-live { color: #fff; background: var(--soc-ok); border-color: var(--soc-ok); }
+
+.speed-btn.active {
+  background: var(--soc-line-strong);
+  border-color: var(--soc-line-strong);
+  color: #e6edf3;
+}
+
+.hud-score {
+  font-family: "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #e6edf3;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-list {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.hud-list dt {
+  font-weight: 400;
+  color: var(--soc-text-dim);
+}
+
+.hud-list dd {
+  margin: 0;
+  text-align: right;
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-block { color: var(--soc-accent); }
+.hud-hit { color: #e06a6a; }
+
+.feed {
+  max-height: 340px;
+  overflow-y: auto;
+  font-size: 0.75rem;
+}
+
+.feed-item {
+  display: block;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--soc-line);
+  color: var(--soc-text);
+  text-decoration: none;
+}
+
+.feed-item:hover {
+  color: var(--soc-text);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.feed-item .badge {
+  font-size: 0.62rem;
+}
+
+.res-block { color: var(--soc-accent); font-weight: 600; }
+.res-hit { color: #e06a6a; font-weight: 600; }
+
+.feed-new {
+  animation: feed-in 0.8s ease-out;
+}
+
+@keyframes feed-in {
+  from { background: rgba(77, 157, 224, 0.12); }
+  to { background: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-new { animation: none; }
+}
