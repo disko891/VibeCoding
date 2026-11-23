@@ -2,7 +2,10 @@ const express = require('express');
 const pool = require('../db/pool');
 const { createIfNoOpen } = require('../lib/autoEvent');
 
-const NEW_EVENT_MSG = (newId) => ` 미처리 이벤트가 모두 처리되어 새 이벤트 #${newId}가 탐지되었습니다.`;
+// 자동 생성된 이벤트 안내 문구 (없으면 빈 문자열)
+const NEW_EVENT_MSG = (ids) => (ids.length
+  ? ` 미처리 이벤트가 모두 처리되어 새 이벤트 ${ids.length}건이 탐지되었습니다. (#${ids[0]}~#${ids[ids.length - 1]})`
+  : '');
 const { cached } = require('../lib/cache');
 
 const router = express.Router();
@@ -201,8 +204,7 @@ router.post('/:id/edit', async (req, res, next) => {
 
   let msg = '이벤트를 수정했습니다.';
   if (data.status !== 'OPEN') {
-    const newId = await createIfNoOpen(pool);
-    if (newId) msg += NEW_EVENT_MSG(newId);
+    msg += NEW_EVENT_MSG(await createIfNoOpen(pool));
   }
   req.flash('success', msg);
   res.redirect(`/events/${id}`);
@@ -211,8 +213,7 @@ router.post('/:id/edit', async (req, res, next) => {
 // 삭제 (조치 내역은 FK CASCADE로 같이 삭제됨)
 router.post('/:id/delete', async (req, res) => {
   await pool.query('DELETE FROM events WHERE id = ?', [parseInt(req.params.id, 10)]);
-  const newId = await createIfNoOpen(pool);
-  req.flash('success', '이벤트를 삭제했습니다.' + (newId ? NEW_EVENT_MSG(newId) : ''));
+  req.flash('success', '이벤트를 삭제했습니다.' + NEW_EVENT_MSG(await createIfNoOpen(pool)));
   res.redirect('/events');
 });
 
@@ -228,7 +229,7 @@ router.post('/:id/actions', async (req, res, next) => {
     return res.redirect(`/events/${id}`);
   }
 
-  let newEventId = null;
+  let newEventIds = [];
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
@@ -250,7 +251,7 @@ router.post('/:id/actions', async (req, res, next) => {
       await conn.query('UPDATE source_ips SET is_blocked = 1 WHERE id = ?', [rows[0].source_ip_id]);
     }
     if (newStatus && newStatus !== 'OPEN') {
-      newEventId = await createIfNoOpen(conn);
+      newEventIds = await createIfNoOpen(conn);
     }
 
     await conn.commit();
@@ -263,7 +264,7 @@ router.post('/:id/actions', async (req, res, next) => {
 
   let msg = '조치를 등록했습니다.';
   if (actionType === 'BLOCK_IP') msg += ' 출발지 IP를 차단 상태로 변경했습니다.';
-  if (newEventId) msg += NEW_EVENT_MSG(newEventId);
+  msg += NEW_EVENT_MSG(newEventIds);
   req.flash('success', msg);
   res.redirect(`/events/${id}`);
 });
