@@ -13,6 +13,8 @@ const ipsRouter = require('./routes/ips');
 const actionsRouter = require('./routes/actions');
 const { requireAdmin } = require('./lib/auth');
 const cache = require('./lib/cache');
+const pool = require('./db/pool');
+const { createIfNoOpen } = require('./lib/autoEvent');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -102,6 +104,11 @@ const HOST = process.env.HOST || undefined;
 const server = app.listen(PORT, HOST, (err) => {
   if (err) return; // 아래 error 핸들러에서 처리
   console.log(`server start : http://localhost:${PORT}`);
+
+  // 서버 시작 시 미처리 이벤트가 0건이면 하나 만들어 둠
+  createIfNoOpen(pool)
+    .then((id) => { if (id) console.log(`미처리 이벤트가 없어 새 이벤트 #${id} 생성`); })
+    .catch((e) => console.error('자동 이벤트 생성 실패:', e.message));
   if (!HOST || HOST === '0.0.0.0' || HOST === '::') {
     const addrs = Object.values(os.networkInterfaces()).flat()
       .filter((a) => a && a.family === 'IPv4' && !a.internal);

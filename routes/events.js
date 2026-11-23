@@ -1,6 +1,8 @@
 const express = require('express');
 const pool = require('../db/pool');
-const { createIfAllResolved } = require('../lib/autoEvent');
+const { createIfNoOpen } = require('../lib/autoEvent');
+
+const NEW_EVENT_MSG = (newId) => ` 미처리 이벤트가 모두 처리되어 새 이벤트 #${newId}가 탐지되었습니다.`;
 const { cached } = require('../lib/cache');
 
 const router = express.Router();
@@ -198,9 +200,9 @@ router.post('/:id/edit', async (req, res, next) => {
   if (!result.affectedRows) return next();
 
   let msg = '이벤트를 수정했습니다.';
-  if (data.status === 'RESOLVED') {
-    const newId = await createIfAllResolved(pool);
-    if (newId) msg += ` 모든 이벤트가 처리되어 새 이벤트 #${newId}가 탐지되었습니다.`;
+  if (data.status !== 'OPEN') {
+    const newId = await createIfNoOpen(pool);
+    if (newId) msg += NEW_EVENT_MSG(newId);
   }
   req.flash('success', msg);
   res.redirect(`/events/${id}`);
@@ -209,7 +211,8 @@ router.post('/:id/edit', async (req, res, next) => {
 // 삭제 (조치 내역은 FK CASCADE로 같이 삭제됨)
 router.post('/:id/delete', async (req, res) => {
   await pool.query('DELETE FROM events WHERE id = ?', [parseInt(req.params.id, 10)]);
-  req.flash('success', '이벤트를 삭제했습니다.');
+  const newId = await createIfNoOpen(pool);
+  req.flash('success', '이벤트를 삭제했습니다.' + (newId ? NEW_EVENT_MSG(newId) : ''));
   res.redirect('/events');
 });
 
@@ -246,8 +249,8 @@ router.post('/:id/actions', async (req, res, next) => {
     if (actionType === 'BLOCK_IP') {
       await conn.query('UPDATE source_ips SET is_blocked = 1 WHERE id = ?', [rows[0].source_ip_id]);
     }
-    if (newStatus === 'RESOLVED') {
-      newEventId = await createIfAllResolved(conn);
+    if (newStatus && newStatus !== 'OPEN') {
+      newEventId = await createIfNoOpen(conn);
     }
 
     await conn.commit();
@@ -260,7 +263,7 @@ router.post('/:id/actions', async (req, res, next) => {
 
   let msg = '조치를 등록했습니다.';
   if (actionType === 'BLOCK_IP') msg += ' 출발지 IP를 차단 상태로 변경했습니다.';
-  if (newEventId) msg += ` 모든 이벤트가 처리되어 새 이벤트 #${newEventId}가 탐지되었습니다.`;
+  if (newEventId) msg += NEW_EVENT_MSG(newEventId);
   req.flash('success', msg);
   res.redirect(`/events/${id}`);
 });
